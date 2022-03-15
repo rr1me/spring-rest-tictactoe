@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Gameplay>
+	<Player id="1" name="x" symbol="X"/>
+	<Player id="2" name="o" symbol="O"/>
+	<Game>
+		<Step num="1" playerId="1">1</Step>
+		<Step num="2" playerId="2">2</Step>
+	</Game>
+</Gameplay>
