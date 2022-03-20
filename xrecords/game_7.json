@@ -1,0 +1,53 @@
+{
+  "players" : [ {
+    "id" : 1,
+    "name" : "Aya",
+    "symbol" : "X"
+  }, {
+    "id" : 2,
+    "name" : "Eve",
+    "symbol" : "O"
+  } ],
+  "game" : {
+    "steps" : [ {
+      "num" : 1,
+      "playerId" : 1,
+      "actualStep" : 1
+    }, {
+      "num" : 2,
+      "playerId" : 2,
+      "actualStep" : 5
+    }, {
+      "num" : 3,
+      "playerId" : 1,
+      "actualStep" : 4
+    }, {
+      "num" : 4,
+      "playerId" : 2,
+      "actualStep" : 7
+    }, {
+      "num" : 5,
+      "playerId" : 1,
+      "actualStep" : 3
+    }, {
+      "num" : 6,
+      "playerId" : 2,
+      "actualStep" : 2
+    }, {
+      "num" : 7,
+      "playerId" : 1,
+      "actualStep" : 8
+    }, {
+      "num" : 8,
+      "playerId" : 2,
+      "actualStep" : 6
+    }, {
+      "num" : 9,
+      "playerId" : 1,
+      "actualStep" : 9
+    } ]
+  },
+  "gameResult" : {
+    "draw" : "Draw"
+  }
+}

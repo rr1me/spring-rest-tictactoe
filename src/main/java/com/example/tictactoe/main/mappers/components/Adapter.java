@@ -1,4 +1,4 @@
-package com.example.tictactoe.xmlReader.components;
+package com.example.tictactoe.main.mappers.components;
 
 import org.springframework.stereotype.Component;
 

@@ -1,87 +1,26 @@
 package com.example.tictactoe.main;
 
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.stream.*;
-import javax.xml.stream.events.XMLEvent;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.http.converter.json.SpringHandlerInstantiator;
 
 @Configuration
 @ComponentScan("com.example.tictactoe")
 public class SpringConfig {
 
     @Bean
-    public XmlMapper mapper(){
-        return new XmlMapper();
+    public HandlerInstantiator handlerInstantiator(ApplicationContext applicationContext) {
+        return new SpringHandlerInstantiator(applicationContext.getAutowireCapableBeanFactory());
     }
 
     @Bean
-    public BufferedReader reader(){
-        return new BufferedReader(new InputStreamReader(System.in));
-    }
-
-    @Bean
-    public XMLOutputFactory outputFactory(){
-        return XMLOutputFactory.newInstance();
-    }
-
-    @Bean
-    public XMLEventFactory factory(){
-        return XMLEventFactory.newInstance();
-    }
-
-    @Bean
-    public XMLEventWriter writer(){
-        return new XMLEventWriter() {
-            @Override
-            public void flush() throws XMLStreamException {
-
-            }
-
-            @Override
-            public void close() throws XMLStreamException {
-
-            }
-
-            @Override
-            public void add(XMLEvent event) throws XMLStreamException {
-
-            }
-
-            @Override
-            public void add(XMLEventReader reader) throws XMLStreamException {
-
-            }
-
-            @Override
-            public String getPrefix(String uri) throws XMLStreamException {
-                return null;
-            }
-
-            @Override
-            public void setPrefix(String prefix, String uri) throws XMLStreamException {
-
-            }
-
-            @Override
-            public void setDefaultNamespace(String uri) throws XMLStreamException {
-
-            }
-
-            @Override
-            public void setNamespaceContext(NamespaceContext context) throws XMLStreamException {
-
-            }
-
-            @Override
-            public NamespaceContext getNamespaceContext() {
-                return null;
-            }
-        };
+    public Jackson2ObjectMapperBuilder objectMapperBuilder(HandlerInstantiator handlerInstantiator) {
+        Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
+        builder.handlerInstantiator(handlerInstantiator);
+        return builder;
     }
 }
