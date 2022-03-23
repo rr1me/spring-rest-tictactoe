@@ -1,11 +1,8 @@
 package com.example.tictactoe.main.mappers;
 
 import com.example.tictactoe.main.mappers.components.Gameplay;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.stereotype.Component;
 
 import javax.xml.stream.XMLInputFactory;
@@ -19,7 +16,7 @@ import java.util.Objects;
 public class MakeXml implements LogFileInterface {
 
     @Autowired
-    private Jackson2ObjectMapperBuilder objectMapperBuilder;
+    private XmlMapper xmlMapper;
 
     @Override
     public void makeFile(Gameplay gameplay) throws IOException {
@@ -29,17 +26,13 @@ public class MakeXml implements LogFileInterface {
             file = new File("./xrecords/game_"+(++i)+".xml");
         }
 
-        XmlMapper mapper = objectMapperBuilder.createXmlMapper(true).build();
-        mapper.enable(ToXmlGenerator.Feature.WRITE_XML_DECLARATION);
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        mapper.writeValue(file, gameplay);
+        xmlMapper.writeValue(file, gameplay);
     }
 
     @Override
     public Gameplay mapFile(Path path) throws IOException, XMLStreamException {
         String xml = inputStreamToString(new FileInputStream(path.toString()));
-        XmlMapper mapper = objectMapperBuilder.createXmlMapper(true).build();
-        return mapper.readValue(xml, Gameplay.class);
+        return xmlMapper.readValue(xml, Gameplay.class);
     }
 
     private String inputStreamToString(InputStream is) throws IOException, XMLStreamException {

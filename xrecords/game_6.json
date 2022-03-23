@@ -1,11 +1,11 @@
 {
   "players" : [ {
     "id" : 1,
-    "name" : "Aya",
+    "name" : "ya",
     "symbol" : "X"
   }, {
     "id" : 2,
-    "name" : "Eve",
+    "name" : "ne ya",
     "symbol" : "O"
   } ],
   "game" : {
@@ -16,26 +16,30 @@
     }, {
       "num" : 2,
       "playerId" : 2,
-      "actualStep" : 3
+      "actualStep" : 2
     }, {
       "num" : 3,
       "playerId" : 1,
-      "actualStep" : 6
+      "actualStep" : 7
     }, {
       "num" : 4,
       "playerId" : 2,
-      "actualStep" : 2
+      "actualStep" : 1
     }, {
       "num" : 5,
       "playerId" : 1,
-      "actualStep" : 4
+      "actualStep" : 6
+    }, {
+      "num" : 6,
+      "playerId" : 2,
+      "actualStep" : 3
     } ]
   },
   "gameResult" : {
     "Player" : {
-      "id" : 1,
-      "name" : "Aya",
-      "symbol" : "X"
+      "id" : 2,
+      "name" : "ne ya",
+      "symbol" : "O"
     }
   }
 }

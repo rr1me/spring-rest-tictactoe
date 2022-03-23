@@ -2,9 +2,7 @@ package com.example.tictactoe.main.mappers;
 
 import com.example.tictactoe.main.mappers.components.Gameplay;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -15,7 +13,7 @@ import java.nio.file.Path;
 public class MakeJson implements LogFileInterface{
 
     @Autowired
-    private Jackson2ObjectMapperBuilder objectMapperBuilder;
+    private ObjectMapper objectMapper;
 
     @Override
     public void makeFile(Gameplay gameplay) throws IOException {
@@ -25,14 +23,11 @@ public class MakeJson implements LogFileInterface{
             file = new File("./xrecords/game_"+(++i)+".json");
         }
 
-        ObjectMapper mapper = objectMapperBuilder.createXmlMapper(false).build();
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        mapper.writeValue(file, gameplay);
+        objectMapper.writeValue(file, gameplay);
     }
 
     @Override
     public Gameplay mapFile(Path path) throws IOException {
-        ObjectMapper mapper = objectMapperBuilder.createXmlMapper(false).build();
-        return mapper.readValue(new File(path.toString()), Gameplay.class);
+        return objectMapper.readValue(new File(path.toString()), Gameplay.class);
     }
 }
