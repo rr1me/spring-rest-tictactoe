@@ -13,8 +13,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 @Service
@@ -48,17 +48,13 @@ public class Reproduction {
     public StringBuilder init(String to) throws IOException, XMLStreamException {
 
         StringBuilder builder = new StringBuilder();
-        Supplier<Stream<Path>> paths = () -> {
-            try {
-                return Files.walk(Paths.get("./xrecords")).filter(Files::isRegularFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        };
+
+        Stream<Path> streamPaths = Files.walk(Paths.get("./xrecords")).filter(Files::isRegularFile);
+        List<Path> paths = new ArrayList<>(streamPaths.toList());
+        paths.sort(Path::compareTo);
 
         if(to != null){
-            Path path = paths.get().toList().get(Integer.parseInt(to)-1);
+            Path path = paths.get(Integer.parseInt(to)-1);
             Gameplay gameplay = logger.gameplayRep(path);
             builder.append(boardReplay(gameplay));
             Player player;
@@ -71,8 +67,8 @@ public class Reproduction {
             }
         }
         else{
-            for (int i = 0; i < paths.get().count(); i++){
-                String v = paths.get().toList().get(i).toString().substring(11);
+            for (int i = 0; i < paths.size(); i++){
+                String v = paths.get(i).toString().substring(11);
                 builder.append((i+1)+" | "+v+"\n");
             }
             builder.append("""

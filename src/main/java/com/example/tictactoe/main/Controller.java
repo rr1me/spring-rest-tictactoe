@@ -36,8 +36,8 @@ public class Controller {
     @GetMapping
     public String index(){
         return """
-                Game: localhost:8080/game
-                Reproduction: localhost:8080/rep""";
+                Game: /game
+                Reproduction: /rep""";
     }
 
     @GetMapping("/rep")
@@ -95,7 +95,7 @@ public class Controller {
         else{
             string = new StringBuilder("""
                     To register the game type names of players in params: firstPlayer(X), secondPlayer(O)
-                    i.e. localhost:8080/game?firstPlayer=Aya&secondPlayer=Eve
+                    i.e. /game?firstPlayer=Aya&secondPlayer=Eve
                     """);
         }
         if (format != null){
