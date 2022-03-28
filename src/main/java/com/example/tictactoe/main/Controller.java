@@ -2,6 +2,7 @@ package com.example.tictactoe.main;
 
 import com.example.tictactoe.main.basic.ActualGame;
 import com.example.tictactoe.main.basic.Reproduction;
+import com.example.tictactoe.main.mappers.FileRepo;
 import com.example.tictactoe.main.mappers.Logger;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,33 +24,35 @@ public class Controller {
     private ActualGame actualGame;
     private Reproduction re;
     private Logger logger;
+    private FileRepo fileRepo;
 
     @Autowired
-    public Controller(ActualGame actualGame, Reproduction re, Logger logger) {
+    public Controller(ActualGame actualGame, Reproduction re, Logger logger, FileRepo fileRepo) {
         this.actualGame = actualGame;
         this.re = re;
         this.logger = logger;
+        this.fileRepo = fileRepo;
     }
 
     private boolean reg = false;
 
-    @GetMapping
+    @GetMapping(value = {"", "/gameplay"})
     public String index(){
         return """
-                Game: /game
-                Reproduction: /rep""";
+                Game: /gameplay/game
+                Reproduction: /gameplay/rep""";
     }
 
-    @GetMapping("/rep")
+    @GetMapping("/gameplay/rep")
     public StringBuilder rep(@RequestParam(required = false) String to) throws XMLStreamException, IOException {
         if(reg) reg = false;
         return re.init(to);
     }
 
-    @PostMapping("/rep/upload")
+    @PostMapping("/gameplay/rep/upload")
     public @ResponseBody String handleFileUpload(@RequestParam("file") MultipartFile file){
         try {
-            StringBuilder path = new StringBuilder("./xrecords/" + file.getOriginalFilename());
+            StringBuilder path = new StringBuilder(fileRepo.getBasePath() + file.getOriginalFilename());
             File fileCheck = new File(path.toString());
             if(fileCheck.exists()){
                 Pattern pBrace = Pattern.compile(".*(\\(\\d\\)\\.).*");
@@ -76,7 +79,7 @@ public class Controller {
         }
     }
 
-    @GetMapping("/game")
+    @GetMapping("/gameplay/game")
     public StringBuilder game(@RequestParam(required = false) String firstPlayer, @RequestParam(required = false) String secondPlayer, @RequestParam(required = false) String format){
         StringBuilder string;
         if (firstPlayer != null && secondPlayer != null && !reg){
@@ -107,7 +110,7 @@ public class Controller {
         return string;
     }
 
-    @GetMapping("/game/step")
+    @GetMapping("/gameplay/game/step")
     public StringBuilder step(@RequestParam(required = false) String to) throws IOException {
         StringBuilder builder = new StringBuilder();
 
