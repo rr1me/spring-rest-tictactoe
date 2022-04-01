@@ -1,10 +1,15 @@
 package com.example.tictactoe.main.mappers;
 
+import com.example.tictactoe.main.entities.GameEntity;
+import com.example.tictactoe.main.entities.StepEntity;
 import com.example.tictactoe.main.mappers.components.*;
+import com.example.tictactoe.main.repos.GameRepo;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
@@ -26,13 +31,15 @@ public class Logger {
     private final Adapter adapter;
     private final MakeXml makeXml;
     private final MakeJson makeJson;
+    private final GameRepo gameRepo;
 
     @Autowired
-    public Logger(Gameplay gameplay, Adapter adapter, MakeXml makeXml, MakeJson makeJson) {
+    public Logger(Gameplay gameplay, Adapter adapter, MakeXml makeXml, MakeJson makeJson, GameRepo gameRepo) {
         this.gameplay = gameplay;
         this.adapter = adapter;
         this.makeXml = makeXml;
         this.makeJson = makeJson;
+        this.gameRepo = gameRepo;
     }
 
     public void gameplayInit(String firstPlayer, String secondPlayer){
@@ -45,12 +52,12 @@ public class Logger {
     public void makeResult(int id, String name, String symbol) throws IOException {
         Player player = new Player(id, name, symbol);
         gameplay.getGameResult().setPlayer(player);
-        makeFile();
+        makeFile(id);
     }
 
     public void makeDraw() throws IOException {
         gameplay.getGameResult().setDraw("Draw");
-        makeFile();
+        makeFile(3);
     }
 
     public Gameplay gameplayRep(Path path) throws IOException, XMLStreamException {
@@ -71,7 +78,45 @@ public class Logger {
         gameplay.getGame().getSteps().add(step);
     }
 
-    private void makeFile() throws IOException {
+    @Transactional(propagation= Propagation.REQUIRED, readOnly=true, noRollbackFor=Exception.class)
+    public Gameplay gameplayRepByDb(String to){
+        GameEntity gameEntity = gameRepo.findById(Long.parseLong(to));
+
+        List<Player> players = Arrays.asList(new Player(1, gameEntity.getFirstPlayer(), "X"), new Player(2, gameEntity.getSecondPlayer(), "O"));
+
+        GameResult gameResult = new GameResult();
+        switch (gameEntity.getWinner()){
+            case 1 -> gameResult.setPlayer(new Player(1, gameEntity.getFirstPlayer(), "X"));
+            case 2 -> gameResult.setPlayer(new Player(2, gameEntity.getSecondPlayer(), "O"));
+            case 3 -> gameResult.setDraw("Draw");
+        }
+
+        Game game = new Game(new ArrayList<>());
+        for (StepEntity stepEntity : gameEntity.getSteps()){
+            game.getSteps().add(new Step(stepEntity.getNum(), stepEntity.getPlayerId(), stepEntity.getActualStep()));
+        }
+
+        gameplay.setPlayers(players);
+        gameplay.setGameResult(gameResult);
+        gameplay.setGame(game);
+        return gameplay;
+    }
+
+    private void makeFile(int winner) throws IOException {
+
+        List<String> playerNames = gameplay.getPlayers().stream().map(Player::getName).toList();
+
+        GameEntity gameEntity = new GameEntity(playerNames.get(0), playerNames.get(1), winner);
+
+        List<StepEntity> stepEntities = new ArrayList<>();
+        for (Step step : gameplay.getGame().getSteps()){
+            stepEntities.add(new StepEntity(step.getNum(), step.getPlayerId(), step.getActualStep(), gameEntity));
+        }
+        gameEntity.setSteps(stepEntities);
+
+        gameRepo.save(gameEntity);
+
+
         if(format)
             makeJson.makeFile(gameplay);
         else

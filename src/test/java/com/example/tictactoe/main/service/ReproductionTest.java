@@ -1,4 +1,4 @@
-package com.example.tictactoe.main.basic;
+package com.example.tictactoe.main.service;
 
 import com.example.tictactoe.main.mappers.Logger;
 import com.example.tictactoe.main.mappers.components.Gameplay;
@@ -100,6 +100,6 @@ class ReproductionTest {
 
     @Test
     void initTest() throws XMLStreamException, IOException {
-        System.out.println(re.init("2"));
+        System.out.println(re.init("2", false));
     }
 }

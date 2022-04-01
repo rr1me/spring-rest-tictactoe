@@ -1,4 +1,4 @@
-package com.example.tictactoe.main.basic;
+package com.example.tictactoe.main.service;
 
 import com.example.tictactoe.main.mappers.Logger;
 import org.junit.jupiter.api.Test;

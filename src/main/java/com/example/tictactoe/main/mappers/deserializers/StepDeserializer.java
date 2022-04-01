@@ -1,4 +1,4 @@
-package com.example.tictactoe.main.deserializers;
+package com.example.tictactoe.main.mappers.deserializers;
 
 import com.example.tictactoe.main.mappers.components.Adapter;
 import com.example.tictactoe.main.mappers.components.Step;
