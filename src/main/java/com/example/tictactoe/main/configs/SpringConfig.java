@@ -1,4 +1,4 @@
-package com.example.tictactoe.main;
+package com.example.tictactoe.main.configs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -16,7 +16,6 @@ import org.springframework.http.converter.json.SpringHandlerInstantiator;
 @Configuration
 @ComponentScan("com.example.tictactoe")
 public class SpringConfig {
-
     @Autowired
     private ApplicationContext context;
 

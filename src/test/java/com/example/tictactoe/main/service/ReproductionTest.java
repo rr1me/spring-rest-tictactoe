@@ -1,4 +1,4 @@
-package com.example.tictactoe.main.basic;
+package com.example.tictactoe.main.service;
 
 import com.example.tictactoe.main.mappers.Logger;
 import com.example.tictactoe.main.mappers.components.Gameplay;
@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 
@@ -17,6 +19,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 
 @SpringBootTest
+@AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
 class ReproductionTest {
 
     @SpyBean
@@ -100,6 +103,6 @@ class ReproductionTest {
 
     @Test
     void initTest() throws XMLStreamException, IOException {
-        System.out.println(re.init("2"));
+        System.out.println(re.init("2", false));
     }
 }

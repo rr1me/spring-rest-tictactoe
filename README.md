@@ -1,6 +1,6 @@
 ## yo
 
-this is tic tac toe with xml and json loggers(jackson), game reproducing by log file, http api to upload ur own files and rest api to use(spring).
+this is tic tac toe with xml and json loggers(jackson), game reproducing by log file, http api to upload ur own files, rest api to use(spring) and database(postgres) support.
 
 ___
 

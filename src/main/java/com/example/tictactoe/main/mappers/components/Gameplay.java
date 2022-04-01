@@ -1,6 +1,6 @@
 package com.example.tictactoe.main.mappers.components;
 
-import com.example.tictactoe.main.deserializers.GameResultDeserializer;
+import com.example.tictactoe.main.mappers.deserializers.GameResultDeserializer;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

@@ -1,6 +1,6 @@
-package com.example.tictactoe.main.basic;
+package com.example.tictactoe.main.service;
 
-import com.example.tictactoe.main.Controller;
+import com.example.tictactoe.main.controllers.GameController;
 import com.example.tictactoe.main.mappers.Logger;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,13 +16,13 @@ import java.io.IOException;
 public class ActualGame {
 
     private final Reproduction reproduction;
-    private final Controller controller;
+    private final GameController gameController;
     private final Logger logger;
 
     @Autowired
-    public ActualGame(Reproduction reproduction, @Lazy Controller controller, Logger logger) {
+    public ActualGame(Reproduction reproduction, @Lazy GameController gameController, Logger logger) {
         this.reproduction = reproduction;
-        this.controller = controller;
+        this.gameController = gameController;
         this.logger = logger;
     }
 
@@ -81,11 +81,11 @@ public class ActualGame {
 
             if(numStep > 5 && checkWin(tempChar)) {
                 builder.append("Player " + (player ? "1 -> "+firstPname : "2 -> "+secondPname) + " won as \""+getTempPlayer()+"\"");
-                controller.setReg(false);
+                gameController.setReg(false);
                 logger.makeResult((player?1:2), (player ? firstPname : secondPname), getTempPlayer());
             }else if(numStep > 9){
                 builder.append("Draw, gg");
-                controller.setReg(false);
+                gameController.setReg(false);
                 logger.makeDraw();
             }
             else
