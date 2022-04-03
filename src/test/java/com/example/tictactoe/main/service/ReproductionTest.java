@@ -100,6 +100,6 @@ class ReproductionTest {
 
     @Test
     void initTest() throws XMLStreamException, IOException {
-        System.out.println(re.init("2", false));
+        System.out.println(re.init("file"));
     }
 }

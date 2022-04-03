@@ -1,9 +1,9 @@
 package com.example.tictactoe.main.mappers;
 
-import com.example.tictactoe.main.entities.GameEntity;
-import com.example.tictactoe.main.entities.StepEntity;
+import com.example.tictactoe.main.entities.*;
 import com.example.tictactoe.main.mappers.components.*;
 import com.example.tictactoe.main.repos.GameRepo;
+import com.example.tictactoe.main.repos.PlayerRepo;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,14 +32,16 @@ public class Logger {
     private final MakeXml makeXml;
     private final MakeJson makeJson;
     private final GameRepo gameRepo;
+    private final PlayerRepo playerRepo;
 
     @Autowired
-    public Logger(Gameplay gameplay, Adapter adapter, MakeXml makeXml, MakeJson makeJson, GameRepo gameRepo) {
+    public Logger(Gameplay gameplay, Adapter adapter, MakeXml makeXml, MakeJson makeJson, GameRepo gameRepo, PlayerRepo playerRepo) {
         this.gameplay = gameplay;
         this.adapter = adapter;
         this.makeXml = makeXml;
         this.makeJson = makeJson;
         this.gameRepo = gameRepo;
+        this.playerRepo = playerRepo;
     }
 
     public void gameplayInit(String firstPlayer, String secondPlayer){
@@ -82,12 +84,15 @@ public class Logger {
     public Gameplay gameplayRepByDb(String to){
         GameEntity gameEntity = gameRepo.findById(Long.parseLong(to));
 
-        List<Player> players = Arrays.asList(new Player(1, gameEntity.getFirstPlayer(), "X"), new Player(2, gameEntity.getSecondPlayer(), "O"));
+
+        Player firstPlayer = new Player(1, gameEntity.getFirstPlayer(), "X");
+        Player secondPlayer = new Player(2, gameEntity.getSecondPlayer(), "O");
+        List<Player> players = Arrays.asList(firstPlayer, secondPlayer);
 
         GameResult gameResult = new GameResult();
         switch (gameEntity.getWinner()){
-            case 1 -> gameResult.setPlayer(new Player(1, gameEntity.getFirstPlayer(), "X"));
-            case 2 -> gameResult.setPlayer(new Player(2, gameEntity.getSecondPlayer(), "O"));
+            case 1 -> gameResult.setPlayer(firstPlayer);
+            case 2 -> gameResult.setPlayer(secondPlayer);
             case 3 -> gameResult.setDraw("Draw");
         }
 
@@ -102,9 +107,39 @@ public class Logger {
         return gameplay;
     }
 
-    private void makeFile(int winner) throws IOException {
+    private PlayerEntity findPlayer(String name){
+        PlayerEntity player = playerRepo.findByName(name);
+        if (player == null)
+            player = new PlayerEntity(name, 0, 0, 0);
+        return player;
+    }
+
+    @Transactional(propagation= Propagation.REQUIRED)
+    public void makeFile(int winner) throws IOException {
 
         List<String> playerNames = gameplay.getPlayers().stream().map(Player::getName).toList();
+
+        PlayerEntity firstPlayerEntity = findPlayer(playerNames.get(0));
+        PlayerEntity secondPlayerEntity = findPlayer(playerNames.get(1));
+
+
+        switch (winner){
+            case 1 -> {
+                firstPlayerEntity.changeStats("win");
+                secondPlayerEntity.changeStats("loss");
+            }
+            case 2 -> {
+                secondPlayerEntity.changeStats("win");
+                firstPlayerEntity.changeStats("loss");
+            }
+            case 3 -> {
+                firstPlayerEntity.changeStats("draw");
+                secondPlayerEntity.changeStats("draw");
+            }
+        }
+//        playerRepo.save(firstPlayerEntity);
+//        playerRepo.save(secondPlayerEntity);
+//        System.out.println(firstPlayerEntity.getName()+" "+secondPlayerEntity.getName()+" entities");
 
         GameEntity gameEntity = new GameEntity(playerNames.get(0), playerNames.get(1), winner);
 

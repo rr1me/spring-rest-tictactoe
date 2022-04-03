@@ -37,8 +37,8 @@ public class GameEntity {
         this.winner = winner;
     }
 
-    private String winner(){
-        return switch (winner){
+    private String winner() {
+        return switch (winner) {
             case 1 -> firstPlayer;
             case 2 -> secondPlayer;
             case 3 -> "Draw";

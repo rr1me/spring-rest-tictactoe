@@ -1,6 +1,7 @@
 package com.example.tictactoe.main.service;
 
 import com.example.tictactoe.main.entities.GameEntity;
+import com.example.tictactoe.main.exceptions.OutOfBoundsExcp;
 import com.example.tictactoe.main.mappers.Logger;
 import com.example.tictactoe.main.mappers.components.Gameplay;
 import com.example.tictactoe.main.mappers.components.Player;
@@ -25,12 +26,14 @@ public class Reproduction {
     private final ActualGame game;
     private final Logger logger;
     private final GameRepo gameRepo;
+    private final BotExecutor executor;
 
     @Autowired
-    public Reproduction(@Lazy ActualGame game, Logger logger, GameRepo gameRepo) {
+    public Reproduction(@Lazy ActualGame game, Logger logger, GameRepo gameRepo, @Lazy BotExecutor executor) {
         this.game = game;
         this.logger = logger;
         this.gameRepo = gameRepo;
+        this.executor = executor;
     }
 
     private StringBuilder boardReplay(Gameplay gameplay) {
@@ -48,48 +51,69 @@ public class Reproduction {
         }
         return boardBuilder;
     }
+    private String type;
+    private List<Path> paths;
 
-    private Gameplay getGameplay(String to, boolean type, List<Path> paths) throws IOException, XMLStreamException {
-        if (type)
-            return logger.gameplayRepByDb(to);
-        Path path = paths.get(Integer.parseInt(to)-1);
-        return logger.gameplayRep(path);
+    private Gameplay getGameplay(String to, String type, List<Path> paths) throws IOException, XMLStreamException, OutOfBoundsExcp {
+        int i = Integer.parseInt(to);
+
+        if (type.equals("file") && i > paths.size())
+            throw new OutOfBoundsExcp();
+        else{
+            if (type.equals("db"))
+                return logger.gameplayRepByDb(to);
+            Path path = paths.get(Integer.parseInt(to)-1);
+            return logger.gameplayRep(path);
+        }
+
     }
 
-    public StringBuilder init(String to, boolean type) throws IOException, XMLStreamException {
+    public StringBuilder reproduce(String to) {
         StringBuilder builder = new StringBuilder();
 
-        List<Path> paths = null;
-        if (!type) {
+        Gameplay gameplay;
+        try{
+            gameplay = getGameplay(to, type, paths);
+        }catch (NumberFormatException e){
+            return builder.append("Its not a number");
+        }catch (OutOfBoundsExcp | IOException | XMLStreamException e){
+            return builder.append(e.getMessage());
+        }
+
+        executor.setReproducing(false);
+
+        builder.append(boardReplay(gameplay));
+        Player player;
+        if (gameplay.getGameResult().getDraw() != null)
+            return builder.append("Draw, gg");
+
+        player = gameplay.getGameResult().getPlayer();
+        return builder.append("Player " + player.getId() + " -> " + player.getName() + " won as \"" + player.getSymbol() + "\"");
+    }
+
+    public StringBuilder init(String type) throws IOException {
+        StringBuilder builder = new StringBuilder();
+
+        List<String> response;
+        if (type.contains("file")) {
             Stream<Path> streamPaths = Files.walk(Paths.get("./xrecords")).filter(Files::isRegularFile);
             paths = new ArrayList<>(streamPaths.toList());
             paths.sort(Path::compareTo);
-        }
-
-        if (to != null) {
-            Gameplay gameplay = getGameplay(to, type, paths);
-            builder.append(boardReplay(gameplay));
-            Player player;
-            if (gameplay.getGameResult().getDraw() != null)
-                return builder.append("Draw, gg");
-
-            player = gameplay.getGameResult().getPlayer();
-            return builder.append("Player " + player.getId() + " -> " + player.getName() + " won as \"" + player.getSymbol() + "\"");
-        }
-
-        List<String> response;
-        if (type)
-            response = gameRepo.findAll().stream().map(GameEntity::toString).toList();
-        else
             response = paths.stream().map(x -> x.toString().substring(11)).toList();
+        }
+        else
+            response = gameRepo.findAll().stream().map(GameEntity::toString).toList();
+
+        this.type = type;
 
         for (int i = 0; i < response.size(); i++) {
             builder.append((i + 1) + " | " + response.get(i)+"\n");
         }
+        executor.setReproducing(true);
+
         builder.append("""
                 
-                To reproduce file use param "to" in link i.e. /rep?type=[your type]&to=1
-                Also you can upload your own file by sending post request to /rep/upload with body key "file\"""");
+                Now type game number you want to reproduce""");
 
         return builder;
     }
