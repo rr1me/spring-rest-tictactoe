@@ -2,6 +2,7 @@ package com.example.tictactoe.main.onlineGame;
 
 import com.example.tictactoe.main.exceptions.OutOfBoundsExcp;
 import com.example.tictactoe.main.service.ActualGame;
+import com.example.tictactoe.main.service.CharacterHolder;
 import com.example.tictactoe.main.util.ArgScan;
 import com.example.tictactoe.main.util.SendMsg;
 import lombok.Getter;
@@ -34,9 +35,12 @@ public class OnlineGameRegisterer {
 
     private Map<Integer, OnlineGameHolder> gameHandlerMap = new HashMap<>();
 
-    public void connect(Update update){
-        if (gameHandlerMap.values().stream().anyMatch(x->x.getFirstPlayerChatId() == update.getMessage().getChatId()) )
+    public boolean connect(Update update, CharacterHolder characterHolder){
+        if (gameHandlerMap.values().stream()
+                .anyMatch(x->x.getFirstPlayerCharacterHolder().getChatId() == update.getMessage().getChatId()) ) {
             sendMsg.exec(update, "Not for you");
+            return false;
+        }
         else{
             List<String> args = argScan.s(update);
 
@@ -48,9 +52,9 @@ public class OnlineGameRegisterer {
                     throw new OutOfBoundsExcp();
 
                 Long secondPlayerChatId = update.getMessage().getChatId();
-                onlineGameHolder.setSecondPlayerChatId(secondPlayerChatId);
+                onlineGameHolder.setSecondPlayerCharacterHolder(characterHolder);
 
-                onlineGameHolder.setSecondPlayerName(update.getMessage().getFrom().getFirstName());
+                characterHolder.setOnlineGameHolder(onlineGameHolder);
 
                 long firstPlayerChatId = onlineGameHolder.registerGame();
 
@@ -65,56 +69,87 @@ public class OnlineGameRegisterer {
                 sendMsg.exec(firstPlayerChatId, builder);
                 sendMsg.exec(update, builder);
 
+                characterHolder.setOnlineGame(true);
+                characterHolder.setOnlineGameId(gameId);
+
+                return true;
+
             }catch (IndexOutOfBoundsException e){
                 sendMsg.exec(update, "If you want to connect to random game type /connect random");
+                return false;
                 // TODO: 04.04.2022 make random connection
             }catch (OutOfBoundsExcp e){
                 sendMsg.exec(update, "There's no game with that id");
+                return false;
             }
         }
     }
 
-    public void onlineGame(Update update) {
-        if (gameHandlerMap.values().stream().anyMatch(x->x.getFirstPlayerChatId() == update.getMessage().getChatId()) )
-            sendMsg.exec(update, "Already registered\nWait for the other player");
-        else{
-            OnlineGameHolder onlineGameHolder = onlineGameHolderObjectProvider.getObject();
-            onlineGameHolder.setGame(actualGameObjectProvider.getObject());
-            onlineGameHolder.setFirstPlayerChatId(update.getMessage().getChatId());
-            onlineGameHolder.setFirstPlayerName(update.getMessage().getFrom().getFirstName());
+    public boolean reg(Update update, CharacterHolder characterHolder) {
+        OnlineGameHolder onlineGameHolder = onlineGameHolderObjectProvider.getObject();
+        onlineGameHolder.setGame(actualGameObjectProvider.getObject());
+        onlineGameHolder.setFirstPlayerCharacterHolder(characterHolder);
 
-            try{
-                int maxKey = Collections.max(gameHandlerMap.keySet());
-                System.out.println(maxKey+ " "+gameHandlerMap.keySet());
-                for(int i = 0; i <= maxKey+1; i++){
-                    if (!gameHandlerMap.containsKey(i)){
-                        gameHandlerMap.put(i, onlineGameHolder);
-                        sendMsg.exec(update, "Game has been registered with id: "+ i);
-                    }
+        try{
+            int maxKey = Collections.max(gameHandlerMap.keySet());
+            System.out.println(maxKey+ " "+gameHandlerMap.keySet());
+            for(int i = 0; i <= maxKey+1; i++){
+                if (!gameHandlerMap.containsKey(i)){
+                    gameHandlerMap.put(i, onlineGameHolder);
+                    sendMsg.exec(update, "Game has been registered with id: "+ i);
+
+                    characterHolder.setOnlineGameHolder(onlineGameHolder);
+                    characterHolder.setOnlineGameId(i);
                 }
-            }catch (NoSuchElementException e){
-                gameHandlerMap.put(0, onlineGameHolder);
-                sendMsg.exec(update, "Game has been registered with id: 0");
             }
+        }catch (NoSuchElementException e){
+            gameHandlerMap.put(0, onlineGameHolder);
+            sendMsg.exec(update, "Game has been registered with id: 0");
+
+            characterHolder.setOnlineGameHolder(onlineGameHolder);
+            characterHolder.setOnlineGameId(0);
         }
+        return true;
     }
 
-    public void exit(String firstName){
-        Set<Map.Entry<Integer, OnlineGameHolder>> mapSet = gameHandlerMap.entrySet();
+    public void exit(CharacterHolder characterHolder){
+//        Set<Map.Entry<Integer, OnlineGameHolder>> mapSet = gameHandlerMap.entrySet();
+//
+//        Map.Entry<Integer, OnlineGameHolder> onlineGameHolderEntry;
 
-        Map.Entry<Integer, OnlineGameHolder> onlineGameHolderEntry;
+//        if (mapSet.stream().anyMatch(x->x.getValue().getFirstPlayerCharacterHolder().getFirstName().equals(firstName))){
+//            onlineGameHolderEntry = mapSet.stream().filter(x->x.getValue().getFirstPlayerCharacterHolder().getFirstName().equals(firstName)).findFirst().get();
+//
+//            try {
+//                long chatId = onlineGameHolderEntry.getValue().getSecondPlayerCharacterHolder().getChatId();
+//                sendMsg.exec(onlineGameHolderEntry.getValue().getSecondPlayerCharacterHolder().getChatId(), "Your opponent leaved the game");
+//            }catch (NullPointerException e){
+//            }
+//
+//        }else{
+//            onlineGameHolderEntry = mapSet.stream().filter(x->x.getValue().getSecondPlayerCharacterHolder().getFirstName().equals(firstName)).findFirst().get();
+//
+//            sendMsg.exec(onlineGameHolderEntry.getValue().getFirstPlayerCharacterHolder().getChatId(), "Your opponent leaved the game");
+//        }
 
-        if (mapSet.stream().anyMatch(x->x.getValue().getFirstPlayerName().equals(firstName))){
-            onlineGameHolderEntry = mapSet.stream().filter(x->x.getValue().getFirstPlayerName().equals(firstName)).findFirst().get();
+        OnlineGameHolder onlineGameHolder = characterHolder.getOnlineGameHolder();
 
-            sendMsg.exec(onlineGameHolderEntry.getValue().getSecondPlayerChatId(), "Your opponent leaved the game");
+        if (characterHolder.getFirstName().equals(onlineGameHolder.getFirstPlayerCharacterHolder().getFirstName())){
+
+            CharacterHolder secondPlayerCharacterHolder = onlineGameHolder.getSecondPlayerCharacterHolder();
+            if (secondPlayerCharacterHolder != null){
+                secondPlayerCharacterHolder.setOnlineGame(false);
+                sendMsg.exec(secondPlayerCharacterHolder.getChatId(), "Your opponent leaved the game");
+            }
         }else{
-            onlineGameHolderEntry = mapSet.stream().filter(x->x.getValue().getSecondPlayerName().equals(firstName)).findFirst().get();
+            CharacterHolder firstPlayerCharacterHolder = onlineGameHolder.getFirstPlayerCharacterHolder();
 
-            sendMsg.exec(onlineGameHolderEntry.getValue().getFirstPlayerChatId(), "Your opponent leaved the game");
+            sendMsg.exec(firstPlayerCharacterHolder.getChatId(), "Your opponent leaved the game");
+
+            firstPlayerCharacterHolder.setOnlineGame(false);
         }
 
-        gameHandlerMap.remove(onlineGameHolderEntry.getKey());
+        gameHandlerMap.remove(characterHolder.getOnlineGameId());
 
 //        if (onlineGameHolderEntry.getValue().getFirstPlayerName() == firstName){
 //

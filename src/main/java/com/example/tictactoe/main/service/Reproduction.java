@@ -18,7 +18,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Stream;
 
 @Service
@@ -68,7 +67,7 @@ public class Reproduction {
 
     }
 
-    public StringBuilder reproduce(String to, ScheduledFuture<?> futureReproducing) {
+    public StringBuilder reproduce(String to, CharacterHolder characterHolder) {
         StringBuilder builder = new StringBuilder();
 
         Gameplay gameplay;
@@ -80,7 +79,7 @@ public class Reproduction {
             return builder.append(e.getMessage());
         }
 
-        futureReproducing.cancel(true);
+        characterHolder.setRepService(false);
 
 //        repService.setReproducing(false);
 
@@ -93,12 +92,20 @@ public class Reproduction {
         return builder.append("Player " + player.getId() + " -> " + player.getName() + " won as \"" + player.getSymbol() + "\"");
     }
 
-    public StringBuilder init(String type) throws IOException {
+    public StringBuilder init(String type) {
         StringBuilder builder = new StringBuilder();
 
         List<String> response;
         if (type.contains("file")) {
-            Stream<Path> streamPaths = Files.walk(Paths.get("./xrecords")).filter(Files::isRegularFile);
+
+            Stream<Path> streamPaths = null;
+            try{
+                streamPaths = Files.walk(Paths.get("./xrecords")).filter(Files::isRegularFile);
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+
+
             paths = new ArrayList<>(streamPaths.toList());
             paths.sort(Path::compareTo);
             response = paths.stream().map(x -> x.toString().substring(11)).toList();

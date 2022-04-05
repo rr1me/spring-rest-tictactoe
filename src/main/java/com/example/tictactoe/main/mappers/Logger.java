@@ -56,13 +56,13 @@ public class Logger {
         gameplay.setGameResult(new GameResult());
     }
 
-    public void makeResult(int id, String name, String symbol) throws IOException {
+    public void makeResult(int id, String name, String symbol) {
         Player player = new Player(id, name, symbol);
         gameplay.getGameResult().setPlayer(player);
         makeFile(id);
     }
 
-    public void makeDraw() throws IOException {
+    public void makeDraw() {
         gameplay.getGameResult().setDraw("Draw");
         makeFile(3);
     }
@@ -122,7 +122,7 @@ public class Logger {
         return player;
     }
 
-    public void makeFile(int winner) throws IOException {
+    public void makeFile(int winner) {
 
         List<String> playerNames = gameplay.getPlayers().stream().map(Player::getName).toList();
 
@@ -158,9 +158,13 @@ public class Logger {
         gameRepo.save(gameEntity);
 
 
-        if(format)
-            makeJson.makeFile(gameplay);
-        else
-            makeXml.makeFile(gameplay);
+        try{
+            if(format)
+                makeJson.makeFile(gameplay);
+            else
+                makeXml.makeFile(gameplay);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
     }
 }

@@ -1,6 +1,5 @@
 package com.example.tictactoe.main.service;
 
-import com.example.tictactoe.main.onlineGame.OnlineGameHolder;
 import com.example.tictactoe.main.onlineGame.OnlineGameRegisterer;
 import com.example.tictactoe.main.service.botServices.FileHandler;
 import com.example.tictactoe.main.service.botServices.LocalGame;
@@ -13,10 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
-import java.io.IOException;
-import java.util.Map;
 
 @Service
 @Getter
@@ -41,7 +36,7 @@ public class BotExecutor {
         this.argScan = argScan;
     }
 
-    public void run(Update update) throws TelegramApiException {
+    public void run(Update update) {
 
 
 
@@ -52,26 +47,21 @@ public class BotExecutor {
                 commandEx(update);
             } else {
                 try{
-                    if (localGame.isRegistered()) {
-                        localGame.step(update);
-                    }else if(repService.isReproducing()){
-                        repService.rep(update);
-                    }
-                    else if (onlineGameRegisterer.getGameHandlerMap().values().stream().anyMatch(x->x.getFirstPlayerChatId() == update.getMessage().getChatId()) ){
-
-                        Map.Entry<Integer, OnlineGameHolder> onlineGameHolderEntry = onlineGameRegisterer.getGameHandlerMap().entrySet().stream()
-                                .filter(x->x.getValue().getFirstPlayerChatId() == update.getMessage().getChatId()).findFirst().get();
-
-                        onlineStep(update, onlineGameHolderEntry);
-
-                    }
-                    else if (onlineGameRegisterer.getGameHandlerMap().values().stream().anyMatch(x->x.getSecondPlayerChatId() == update.getMessage().getChatId()) ){
-
-                        Map.Entry<Integer, OnlineGameHolder> onlineGameHolderEntry = onlineGameRegisterer.getGameHandlerMap().entrySet().stream()
-                                .filter(x->x.getValue().getSecondPlayerChatId() == update.getMessage().getChatId()).findFirst().get();
-
-                        onlineStep(update, onlineGameHolderEntry);
-                    }
+//                    if (onlineGameRegisterer.getGameHandlerMap().values().stream().anyMatch(x->x.getFirstPlayerChatId() == update.getMessage().getChatId()) ){
+//
+//                        Map.Entry<Integer, OnlineGameHolder> onlineGameHolderEntry = onlineGameRegisterer.getGameHandlerMap().entrySet().stream()
+//                                .filter(x->x.getValue().getFirstPlayerChatId() == update.getMessage().getChatId()).findFirst().get();
+//
+////                        onlineStep(update, onlineGameHolderEntry);
+//
+//                    }
+//                    else if (onlineGameRegisterer.getGameHandlerMap().values().stream().anyMatch(x->x.getSecondPlayerChatId() == update.getMessage().getChatId()) ){
+//
+//                        Map.Entry<Integer, OnlineGameHolder> onlineGameHolderEntry = onlineGameRegisterer.getGameHandlerMap().entrySet().stream()
+//                                .filter(x->x.getValue().getSecondPlayerChatId() == update.getMessage().getChatId()).findFirst().get();
+//
+////                        onlineStep(update, onlineGameHolderEntry);
+//                    }
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -97,10 +87,10 @@ public class BotExecutor {
                 repService.rep(update);
             else if (cmd.contains("/start"))
                 start(update);
-            else if (cmd.contains("/onlinegame"))
-                onlineGameRegisterer.onlineGame(update);
-            else if (cmd.contains("/connect"))
-                onlineGameRegisterer.connect(update);
+//            else if (cmd.contains("/onlinegame"))
+//                onlineGameRegisterer.reg(update);
+//            else if (cmd.contains("/connect"))
+//                onlineGameRegisterer.connect(update);
             else
                 noCmd(update);
         } catch (Exception e){
@@ -108,24 +98,24 @@ public class BotExecutor {
         }
     }
 
-    private void onlineStep(Update update, Map.Entry<Integer, OnlineGameHolder> onlineGameHolderEntry) throws IOException {
-        OnlineGameHolder onlineGameHolder = onlineGameHolderEntry.getValue();
-
-        ActualGame game = onlineGameHolder.getGame();
-
-        if (!update.getMessage().getFrom().getFirstName().equals(game.getTempPlayerName())){
-
-            sendMsg.exec(update, "Not your turn");
-        }
-        else{
-            StringBuilder builder = game.makeStep(update.getMessage().getText());
-            if (builder.toString().contains("won as") || builder.toString().contains("Draw"))
-                onlineGameRegisterer.getGameHandlerMap().remove(onlineGameHolderEntry.getKey());
-
-            sendMsg.exec(onlineGameHolder.getFirstPlayerChatId(), builder);
-            sendMsg.exec(onlineGameHolder.getSecondPlayerChatId(), builder);
-        }
-    }
+//    private void onlineStep(Update update, Map.Entry<Integer, OnlineGameHolder> onlineGameHolderEntry) {
+//        OnlineGameHolder onlineGameHolder = onlineGameHolderEntry.getValue();
+//
+//        ActualGame game = onlineGameHolder.getGame();
+//
+//        if (!update.getMessage().getFrom().getFirstName().equals(game.getTempPlayerName())){
+//
+//            sendMsg.exec(update, "Not your turn");
+//        }
+//        else{
+//            StringBuilder builder = game.makeStep(update.getMessage().getText());
+//            if (builder.toString().contains("won as") || builder.toString().contains("Draw"))
+//                onlineGameRegisterer.getGameHandlerMap().remove(onlineGameHolderEntry.getKey());
+//
+//            sendMsg.exec(onlineGameHolder.getFirstPlayerChatId(), builder);
+//            sendMsg.exec(onlineGameHolder.getSecondPlayerChatId(), builder);
+//        }
+//    }
 
     private void noCmd(Update update){
         sendMsg.exec(update, "There is no such command. Try /start");

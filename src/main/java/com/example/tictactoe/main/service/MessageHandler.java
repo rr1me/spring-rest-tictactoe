@@ -1,8 +1,8 @@
 package com.example.tictactoe.main.service;
 
-import com.example.tictactoe.main.onlineGame.OnlineGameRegisterer;
 import com.example.tictactoe.main.service.botServices.FileHandler;
 import com.example.tictactoe.main.service.botServices.LocalGame;
+import com.example.tictactoe.main.service.botServices.OnlineGame;
 import com.example.tictactoe.main.service.botServices.RepService;
 import com.example.tictactoe.main.util.SendMsg;
 import org.springframework.beans.factory.ObjectProvider;
@@ -16,7 +16,7 @@ import java.util.Map;
 @Service
 public class MessageHandler {
 
-    private final OnlineGameRegisterer onlineGameRegisterer;
+    private final OnlineGame onlineGame;
     private final ObjectProvider<CharacterHolder> characterHolderObjectProvider;
 
     private final LocalGame localGame;
@@ -25,10 +25,10 @@ public class MessageHandler {
 
     private final SendMsg sendMsg;
 
-    private Map<Long, CharacterHolder> characterHolderMap = new HashMap<>();;
+    private final Map<Long, CharacterHolder> characterHolderMap = new HashMap<>();;
 
-    public MessageHandler(OnlineGameRegisterer onlineGameRegisterer, ObjectProvider<CharacterHolder> characterHolderObjectProvider, LocalGame localGame, RepService repService, FileHandler fileHandler, SendMsg sendMsg) {
-        this.onlineGameRegisterer = onlineGameRegisterer;
+    public MessageHandler(OnlineGame onlineGame, ObjectProvider<CharacterHolder> characterHolderObjectProvider, LocalGame localGame, RepService repService, FileHandler fileHandler, SendMsg sendMsg) {
+        this.onlineGame = onlineGame;
         this.characterHolderObjectProvider = characterHolderObjectProvider;
         this.localGame = localGame;
         this.repService = repService;
@@ -36,7 +36,7 @@ public class MessageHandler {
         this.sendMsg = sendMsg;
     }
 
-    public void d(Update update){
+    public void run(Update update){
         Message message = update.getMessage();
 
         long chatId = message.getChatId();
@@ -46,6 +46,7 @@ public class MessageHandler {
 
             characterHolder = characterHolderObjectProvider.getObject();
             characterHolder.setFirstName(message.getFrom().getFirstName());
+            characterHolder.setChatId(chatId);
 
             characterHolderMap.put(chatId, characterHolder);
         }else{
@@ -65,12 +66,23 @@ public class MessageHandler {
             if (message.getText().startsWith("/") ) {
                 commandExec(update, characterHolder);
             }
-
             else {
-
+                if (characterHolder.isLocalGame())
+                    localGame.step(update, characterHolder);
+                else if (characterHolder.isRepService())
+                    repService.choose(update, characterHolder);
+                else if (characterHolder.isOnlineGame())
+                    onlineGame.onlineStep(update, characterHolder);
             }
-
-
+        }else{
+            if (characterHolder.checkInvolve()){
+                involved(update);
+            }else{
+                if (message.getCaption() != null && message.getCaption().contains("/rep")){
+                    fileHandler.upload(update);
+                }else
+                    noCmd(update);
+            }
         }
 
 
@@ -84,23 +96,39 @@ public class MessageHandler {
 
             if (cmd.contains("/exit")){
                 if (characterHolder.isOnlineGame())
-                    onlineGameRegisterer.exit(characterHolder.getFirstName());
+                    onlineGame.exit(characterHolder);
                 characterHolder.dropCondition();
 
                 sendMsg.exec(update, "Exit confirmed");
             }else{
-                sendMsg.exec(update, "You're already involved in smth, try /exit");
+                involved(update);
             }
 
         }
         else {
             if (cmd.contains("/start"))
                 start(update);
-            else if (cmd.contains("/game")) {
-
+            else if (cmd.contains("/game"))
                 characterHolder.setLocalGame(localGame.reg(update));
-            }
+            else if (cmd.contains("/rep"))
+                characterHolder.setRepService(repService.rep(update));
+            else if (cmd.contains("/onlinegame"))
+                characterHolder.setOnlineGame(onlineGame.reg(update, characterHolder));
+            else if (cmd.contains("/connect"))
+                characterHolder.setOnlineGame(onlineGame.connect(update, characterHolder));
+            else if (cmd.contains("/exit"))
+                sendMsg.exec(update, "?");
+            else
+                noCmd(update);
         }
+    }
+
+    private void noCmd(Update update){
+        sendMsg.exec(update, "There is no such command. Try /start");
+    }
+
+    private void involved(Update update){
+        sendMsg.exec(update, "You're already involved in smth, try /exit");
     }
 
     private void start(Update update){

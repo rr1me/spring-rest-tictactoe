@@ -4,6 +4,7 @@ import com.example.tictactoe.main.mappers.FileRepo;
 import com.example.tictactoe.main.service.Bot;
 import com.example.tictactoe.main.util.SendMsg;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.objects.Document;
@@ -22,7 +23,7 @@ public class FileHandler {
     private final FileRepo fileRepo;
 
     @Autowired
-    public FileHandler(Bot bot, SendMsg sendMsg, FileRepo fileRepo) {
+    public FileHandler(@Lazy Bot bot, SendMsg sendMsg, FileRepo fileRepo) {
         this.bot = bot;
         this.sendMsg = sendMsg;
         this.fileRepo = fileRepo;

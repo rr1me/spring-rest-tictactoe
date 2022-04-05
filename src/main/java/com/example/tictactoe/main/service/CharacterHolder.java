@@ -1,5 +1,6 @@
 package com.example.tictactoe.main.service;
 
+import com.example.tictactoe.main.onlineGame.OnlineGameHolder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.context.annotation.Scope;
@@ -13,11 +14,16 @@ public class CharacterHolder {
 
     private String firstName;
 
+    private long chatId;
+
     private boolean localGame = false;
 
     private boolean repService = false;
 
     private boolean onlineGame = false;
+
+    private OnlineGameHolder onlineGameHolder;
+    private int onlineGameId;
 
     public boolean checkInvolve(){ return localGame || repService || onlineGame; }
 

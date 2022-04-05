@@ -12,7 +12,7 @@
     "steps" : [ {
       "num" : 1,
       "playerId" : 1,
-      "actualStep" : 4
+      "actualStep" : 8
     }, {
       "num" : 2,
       "playerId" : 2,
@@ -24,26 +24,30 @@
     }, {
       "num" : 4,
       "playerId" : 2,
-      "actualStep" : 1
+      "actualStep" : 9
     }, {
       "num" : 5,
       "playerId" : 1,
-      "actualStep" : 9
+      "actualStep" : 1
     }, {
       "num" : 6,
       "playerId" : 2,
-      "actualStep" : 8
+      "actualStep" : 4
     }, {
       "num" : 7,
       "playerId" : 1,
-      "actualStep" : 8
+      "actualStep" : 6
+    }, {
+      "num" : 8,
+      "playerId" : 2,
+      "actualStep" : 2
+    }, {
+      "num" : 9,
+      "playerId" : 1,
+      "actualStep" : 2
     } ]
   },
   "gameResult" : {
-    "Player" : {
-      "id" : 1,
-      "name" : "..",
-      "symbol" : "X"
-    }
+    "draw" : "Draw"
   }
 }

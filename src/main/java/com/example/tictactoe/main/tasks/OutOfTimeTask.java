@@ -29,7 +29,7 @@ public class OutOfTimeTask implements Runnable {
     }
 
     private void outOfTime(Update update) {
-        repService.setReproducing(false);
+//        repService.setReproducing(false);
         sendMsg.exec(update, "You're out of time, try again");
     }
 }

@@ -1,7 +1,8 @@
 package com.example.tictactoe.main.service;
 
+import com.example.tictactoe.main.util.SendMsgEvent;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -10,14 +11,9 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.io.File;
 
 @Service
-public class Bot extends TelegramLongPollingBot{
+public class Bot extends TelegramLongPollingBot implements ApplicationListener<SendMsgEvent> {
 
     @Autowired
-    @Lazy
-    private BotExecutor executor;
-
-    @Autowired
-    @Lazy
     private MessageHandler messageHandler;
 
     @Override
@@ -31,33 +27,18 @@ public class Bot extends TelegramLongPollingBot{
     }
 
     @Override
-    public void onUpdateReceived(Update update) {
-//        try {
-//            execute(new SendMessage(String.valueOf(update.getMessage().getChatId()), "suka"));
-//        } catch (TelegramApiException e) {
-//            e.printStackTrace();
-//        }
-
-        messageHandler.d(update);
-
-//        try {
-//            sendApiMethod(new SendMessage(update.getMessage().getChatId().toString(), "aya"));
-//        } catch (TelegramApiException e) {
-//            e.printStackTrace();
-//        }
-
-
-//        try {
-//            if (selectHandle.getHandle(update) != null)
-////                if(update.getMessage().getText().startsWith("/") || botController.isReg())
-//                    execute(selectHandle.getHandle(update).process(update).get(0));
-//        } catch (TelegramApiException e) {
-//            e.printStackTrace();
-//        }
-
-    }
+    public void onUpdateReceived(Update update) { messageHandler.run(update); }
 
     public void downloader(String path, File outputFile) throws TelegramApiException {
         downloadFile(path, outputFile);
+    }
+
+    @Override
+    public void onApplicationEvent(SendMsgEvent event) {
+        try {
+            execute(event.getMessage());
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
     }
 }

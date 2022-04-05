@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-
 @Service
 @Getter
 @Setter
@@ -69,29 +67,35 @@ public class ActualGame {
         return (player? "X" : "O");
     }
 
-    public StringBuilder makeStep(String to) throws IOException {
-        StringBuilder builder;
-        if (to != null){
-            String tempChar = getTempPlayer();
-            int actualStep = Integer.parseInt(to);
+    public StringBuilder makeStep(String to, CharacterHolder characterHolder) {
+        StringBuilder builder = new StringBuilder();
+        String tempChar = getTempPlayer();
+        int actualStep = Integer.parseInt(to);
 
-            board[actualStep-1] = tempChar;
-            builder = writeBoard();
-            logger.makeStep(numStep++, (player?1:2), actualStep);
+        try{
+            Integer.parseInt(board[actualStep-1]);
+        }catch (Exception e){
+            return builder.append("There's already someone's step, make another decision");
+        };
 
-            if(numStep > 5 && checkWin(tempChar)) {
-                builder.append("Player " + (player ? "1 -> "+firstPname : "2 -> "+secondPname) + " won as \""+getTempPlayer()+"\"");
-                logger.makeResult((player?1:2), (player ? firstPname : secondPname), getTempPlayer());
-            }else if(numStep > 9){
-                builder.append("Draw, gg");
-                logger.makeDraw();
-            }
-            else
-                player = !player;
+        board[actualStep-1] = tempChar;
+        builder.append(writeBoard());
+        logger.makeStep(numStep++, (player?1:2), actualStep);
+
+        if(numStep > 5 && checkWin(tempChar)) {
+            builder.append("Player " + (player ? "1 -> "+firstPname : "2 -> "+secondPname) + " won as \""+getTempPlayer()+"\"");
+            logger.makeResult((player?1:2), (player ? firstPname : secondPname), getTempPlayer());
+
+            characterHolder.setLocalGame(false);
+        }else if(numStep > 9){
+            builder.append("Draw, gg");
+            logger.makeDraw();
+
+            characterHolder.setLocalGame(false);
         }
-        else{
-            builder = writeBoard().append("To step use param \"to\" i.e. /step?to=1");
-        }
+        else
+            player = !player;
+
         return builder;
     }
 

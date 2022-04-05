@@ -1,11 +1,10 @@
 package com.example.tictactoe.main.util;
 
-import com.example.tictactoe.main.service.Bot;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Component
 public class SendMsg {
@@ -26,39 +25,22 @@ public class SendMsg {
         return new SendMessage(String.valueOf(chatId), string);
     }
 
-
     @Autowired
-    private Bot bot;
+    private ApplicationEventPublisher publisher;
 
     public void exec(Update chatId, StringBuilder builder) {
-        try {
-            bot.execute(s(chatId, builder));
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
+        publisher.publishEvent(new SendMsgEvent(this, s(chatId, builder)));
     }
 
     public void exec(Update chatId, String string) {
-        try {
-            bot.execute(s(chatId, string));
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
+        publisher.publishEvent(new SendMsgEvent(this, s(chatId, string)));
     }
 
     public void exec(Long chatId, StringBuilder builder) {
-        try {
-            bot.execute(s(chatId, builder));
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
+        publisher.publishEvent(new SendMsgEvent(this, s(chatId, builder)));
     }
 
     public void exec(Long chatId, String string) {
-        try {
-            bot.execute(s(chatId, string));
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
+        publisher.publishEvent(new SendMsgEvent(this, s(chatId, string)));
     }
 }
