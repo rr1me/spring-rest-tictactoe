@@ -16,6 +16,10 @@ public class Bot extends TelegramLongPollingBot{
     @Lazy
     private BotExecutor executor;
 
+    @Autowired
+    @Lazy
+    private MessageHandler messageHandler;
+
     @Override
     public String getBotUsername() {
         return "rimeTTTbot";
@@ -34,12 +38,7 @@ public class Bot extends TelegramLongPollingBot{
 //            e.printStackTrace();
 //        }
 
-        try {
-            executor.run(update);
-        }
-        catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
+        messageHandler.d(update);
 
 //        try {
 //            sendApiMethod(new SendMessage(update.getMessage().getChatId().toString(), "aya"));

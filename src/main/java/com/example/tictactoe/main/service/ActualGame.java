@@ -4,7 +4,7 @@ import com.example.tictactoe.main.mappers.Logger;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -12,15 +12,14 @@ import java.io.IOException;
 @Service
 @Getter
 @Setter
+@Scope("prototype")
 public class ActualGame {
 
     private final Logger logger;
-    private final BotExecutor executor;
 
     @Autowired
-    public ActualGame(Logger logger, @Lazy BotExecutor executor) {
+    public ActualGame(Logger logger) {
         this.logger = logger;
-        this.executor = executor;
     }
 
     private String[] board = new String[9];
@@ -62,6 +61,10 @@ public class ActualGame {
         this.secondPname = secondPname;
     }
 
+    public String getTempPlayerName(){
+        return (player ? firstPname : secondPname);
+    }
+
     private String getTempPlayer(){
         return (player? "X" : "O");
     }
@@ -78,11 +81,9 @@ public class ActualGame {
 
             if(numStep > 5 && checkWin(tempChar)) {
                 builder.append("Player " + (player ? "1 -> "+firstPname : "2 -> "+secondPname) + " won as \""+getTempPlayer()+"\"");
-                executor.setRegistered(false);
                 logger.makeResult((player?1:2), (player ? firstPname : secondPname), getTempPlayer());
             }else if(numStep > 9){
                 builder.append("Draw, gg");
-                executor.setRegistered(false);
                 logger.makeDraw();
             }
             else

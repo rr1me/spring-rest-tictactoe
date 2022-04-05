@@ -30,6 +30,9 @@ public class PlayerEntity {
     @NotNull
     private int draws;
 
+//    @
+//    private List<GameEntity> games;
+
     public PlayerEntity(String name, int played, int wins, int draws) {
         this.name = name;
         this.played = played;

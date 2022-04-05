@@ -1,12 +1,16 @@
 package com.example.tictactoe.main.mappers;
 
-import com.example.tictactoe.main.entities.*;
+import com.example.tictactoe.main.entities.GameEntity;
+import com.example.tictactoe.main.entities.PlayerEntity;
+import com.example.tictactoe.main.entities.StepEntity;
+import com.example.tictactoe.main.exceptions.OutOfBoundsExcp;
 import com.example.tictactoe.main.mappers.components.*;
 import com.example.tictactoe.main.repos.GameRepo;
 import com.example.tictactoe.main.repos.PlayerRepo;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +26,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
+@Scope("prototype")
 public class Logger {
     @Getter
     @Setter
@@ -81,12 +86,15 @@ public class Logger {
     }
 
     @Transactional(propagation= Propagation.REQUIRED, readOnly=true, noRollbackFor=Exception.class)
-    public Gameplay gameplayRepByDb(String to){
+    public Gameplay gameplayRepByDb(String to) throws OutOfBoundsExcp {
         GameEntity gameEntity = gameRepo.findById(Long.parseLong(to));
 
+        if (gameEntity == null)
+            throw new OutOfBoundsExcp();
 
-        Player firstPlayer = new Player(1, gameEntity.getFirstPlayer(), "X");
-        Player secondPlayer = new Player(2, gameEntity.getSecondPlayer(), "O");
+
+        Player firstPlayer = new Player(1, gameEntity.getFirstPlayer().getName(), "X");
+        Player secondPlayer = new Player(2, gameEntity.getSecondPlayer().getName(), "O");
         List<Player> players = Arrays.asList(firstPlayer, secondPlayer);
 
         GameResult gameResult = new GameResult();
@@ -107,14 +115,13 @@ public class Logger {
         return gameplay;
     }
 
-    private PlayerEntity findPlayer(String name){
+    public PlayerEntity findPlayer(String name){
         PlayerEntity player = playerRepo.findByName(name);
         if (player == null)
             player = new PlayerEntity(name, 0, 0, 0);
         return player;
     }
 
-    @Transactional(propagation= Propagation.REQUIRED)
     public void makeFile(int winner) throws IOException {
 
         List<String> playerNames = gameplay.getPlayers().stream().map(Player::getName).toList();
@@ -137,11 +144,8 @@ public class Logger {
                 secondPlayerEntity.changeStats("draw");
             }
         }
-//        playerRepo.save(firstPlayerEntity);
-//        playerRepo.save(secondPlayerEntity);
-//        System.out.println(firstPlayerEntity.getName()+" "+secondPlayerEntity.getName()+" entities");
 
-        GameEntity gameEntity = new GameEntity(playerNames.get(0), playerNames.get(1), winner);
+        GameEntity gameEntity = new GameEntity(firstPlayerEntity, secondPlayerEntity, winner);
 
         List<StepEntity> stepEntities = new ArrayList<>();
         for (Step step : gameplay.getGame().getSteps()){
@@ -149,6 +153,8 @@ public class Logger {
         }
         gameEntity.setSteps(stepEntities);
 
+        playerRepo.save(firstPlayerEntity);
+        playerRepo.save(secondPlayerEntity);
         gameRepo.save(gameEntity);
 
 

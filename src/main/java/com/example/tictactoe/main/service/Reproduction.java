@@ -8,7 +8,7 @@ import com.example.tictactoe.main.mappers.components.Player;
 import com.example.tictactoe.main.mappers.components.Step;
 import com.example.tictactoe.main.repos.GameRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import javax.xml.stream.XMLStreamException;
@@ -18,22 +18,22 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Stream;
 
 @Service
+@Scope("prototype")
 public class Reproduction {
 
     private final ActualGame game;
     private final Logger logger;
     private final GameRepo gameRepo;
-    private final BotExecutor executor;
 
     @Autowired
-    public Reproduction(@Lazy ActualGame game, Logger logger, GameRepo gameRepo, @Lazy BotExecutor executor) {
+    public Reproduction(ActualGame game, Logger logger, GameRepo gameRepo) {
         this.game = game;
         this.logger = logger;
         this.gameRepo = gameRepo;
-        this.executor = executor;
     }
 
     private StringBuilder boardReplay(Gameplay gameplay) {
@@ -68,7 +68,7 @@ public class Reproduction {
 
     }
 
-    public StringBuilder reproduce(String to) {
+    public StringBuilder reproduce(String to, ScheduledFuture<?> futureReproducing) {
         StringBuilder builder = new StringBuilder();
 
         Gameplay gameplay;
@@ -80,7 +80,9 @@ public class Reproduction {
             return builder.append(e.getMessage());
         }
 
-        executor.setReproducing(false);
+        futureReproducing.cancel(true);
+
+//        repService.setReproducing(false);
 
         builder.append(boardReplay(gameplay));
         Player player;
@@ -109,7 +111,7 @@ public class Reproduction {
         for (int i = 0; i < response.size(); i++) {
             builder.append((i + 1) + " | " + response.get(i)+"\n");
         }
-        executor.setReproducing(true);
+//        repService.setReproducing(true);
 
         builder.append("""
                 

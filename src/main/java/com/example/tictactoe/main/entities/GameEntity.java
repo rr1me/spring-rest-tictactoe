@@ -19,11 +19,11 @@ public class GameEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @NotNull
-    private String firstPlayer;
+    @OneToOne
+    private PlayerEntity firstPlayer;
 
-    @NotNull
-    private String secondPlayer;
+    @OneToOne
+    private PlayerEntity secondPlayer;
 
     @OneToMany(mappedBy = "gameId", cascade = CascadeType.ALL)
     private List<StepEntity> steps;
@@ -31,7 +31,7 @@ public class GameEntity {
     @NotNull
     private int winner;
 
-    public GameEntity(String firstPlayer, String secondPlayer, int winner) {
+    public GameEntity(PlayerEntity firstPlayer, PlayerEntity secondPlayer, int winner) {
         this.firstPlayer = firstPlayer;
         this.secondPlayer = secondPlayer;
         this.winner = winner;
@@ -39,8 +39,8 @@ public class GameEntity {
 
     private String winner() {
         return switch (winner) {
-            case 1 -> firstPlayer;
-            case 2 -> secondPlayer;
+            case 1 -> firstPlayer.getName();
+            case 2 -> secondPlayer.getName();
             case 3 -> "Draw";
             default -> throw new IllegalStateException("Unexpected value: " + winner);
         };
@@ -48,11 +48,9 @@ public class GameEntity {
 
     @Override
     public String toString() {
-        return "GameEntity[" +
-                "id=" + id +
-                ", firstPlayer='" + firstPlayer + '\'' +
-                ", secondPlayer='" + secondPlayer + '\'' +
-                ", winner='" + winner() + '\'' +
-                ']';
+        return "id=" + id +
+                ", firstPlayer='" + firstPlayer.getName() + '\'' +
+                ", secondPlayer='" + secondPlayer.getName() + '\'' +
+                ", winner='" + winner();
     }
 }

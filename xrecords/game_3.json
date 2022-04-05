@@ -1,11 +1,11 @@
 {
   "players" : [ {
     "id" : 1,
-    "name" : "Aya",
+    "name" : "rime",
     "symbol" : "X"
   }, {
     "id" : 2,
-    "name" : "Eve",
+    "name" : "..",
     "symbol" : "O"
   } ],
   "game" : {
@@ -34,7 +34,7 @@
   "gameResult" : {
     "Player" : {
       "id" : 1,
-      "name" : "Aya",
+      "name" : "rime",
       "symbol" : "X"
     }
   }
