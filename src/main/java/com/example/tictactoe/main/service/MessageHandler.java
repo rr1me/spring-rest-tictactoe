@@ -25,7 +25,7 @@ public class MessageHandler {
 
     private final SendMsg sendMsg;
 
-    private final Map<Long, CharacterHolder> characterHolderMap = new HashMap<>();;
+    private final Map<Long, CharacterHolder> characterHolderMap = new HashMap<>();
 
     public MessageHandler(OnlineGame onlineGame, ObjectProvider<CharacterHolder> characterHolderObjectProvider, LocalGame localGame, RepService repService, FileHandler fileHandler, SendMsg sendMsg) {
         this.onlineGame = onlineGame;
@@ -54,12 +54,10 @@ public class MessageHandler {
         }
 
         handle(update, characterHolder);
-
     }
 
     private void handle(Update update, CharacterHolder characterHolder){
         Message message = update.getMessage();
-
 
         if (message.hasText()){
 
@@ -84,8 +82,6 @@ public class MessageHandler {
                     noCmd(update);
             }
         }
-
-
     }
 
 
@@ -103,13 +99,12 @@ public class MessageHandler {
             }else{
                 involved(update);
             }
-
         }
         else {
             if (cmd.contains("/start"))
                 start(update);
             else if (cmd.contains("/game"))
-                characterHolder.setLocalGame(localGame.reg(update));
+                characterHolder.setLocalGame(localGame.reg(update, characterHolder));
             else if (cmd.contains("/rep"))
                 characterHolder.setRepService(repService.rep(update));
             else if (cmd.contains("/onlinegame"))
@@ -118,6 +113,8 @@ public class MessageHandler {
                 characterHolder.setOnlineGame(onlineGame.connect(update, characterHolder));
             else if (cmd.contains("/exit"))
                 sendMsg.exec(update, "?");
+            else if (cmd.contains("/format"))
+                fileHandler.changeFormat(update, characterHolder);
             else
                 noCmd(update);
         }

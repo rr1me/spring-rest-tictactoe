@@ -81,9 +81,9 @@ public class BotExecutor {
     private void commandEx(Update update) {
         String cmd = update.getMessage().getText();
         try{
-            if (cmd.contains("/game"))
-                localGame.reg(update);
-            else if (cmd.contains("/rep"))
+//            if (cmd.contains("/game"))
+//                localGame.reg(update,);
+            if (cmd.contains("/rep"))
                 repService.rep(update);
             else if (cmd.contains("/start"))
                 start(update);

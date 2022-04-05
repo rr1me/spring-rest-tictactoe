@@ -51,7 +51,6 @@ public class OnlineGameRegisterer {
                 if (onlineGameHolder == null)
                     throw new OutOfBoundsExcp();
 
-                Long secondPlayerChatId = update.getMessage().getChatId();
                 onlineGameHolder.setSecondPlayerCharacterHolder(characterHolder);
 
                 characterHolder.setOnlineGameHolder(onlineGameHolder);
@@ -112,36 +111,18 @@ public class OnlineGameRegisterer {
         return true;
     }
 
-    public void exit(CharacterHolder characterHolder){
-//        Set<Map.Entry<Integer, OnlineGameHolder>> mapSet = gameHandlerMap.entrySet();
-//
-//        Map.Entry<Integer, OnlineGameHolder> onlineGameHolderEntry;
-
-//        if (mapSet.stream().anyMatch(x->x.getValue().getFirstPlayerCharacterHolder().getFirstName().equals(firstName))){
-//            onlineGameHolderEntry = mapSet.stream().filter(x->x.getValue().getFirstPlayerCharacterHolder().getFirstName().equals(firstName)).findFirst().get();
-//
-//            try {
-//                long chatId = onlineGameHolderEntry.getValue().getSecondPlayerCharacterHolder().getChatId();
-//                sendMsg.exec(onlineGameHolderEntry.getValue().getSecondPlayerCharacterHolder().getChatId(), "Your opponent leaved the game");
-//            }catch (NullPointerException e){
-//            }
-//
-//        }else{
-//            onlineGameHolderEntry = mapSet.stream().filter(x->x.getValue().getSecondPlayerCharacterHolder().getFirstName().equals(firstName)).findFirst().get();
-//
-//            sendMsg.exec(onlineGameHolderEntry.getValue().getFirstPlayerCharacterHolder().getChatId(), "Your opponent leaved the game");
-//        }
+    public void exit(CharacterHolder characterHolder) {
 
         OnlineGameHolder onlineGameHolder = characterHolder.getOnlineGameHolder();
 
-        if (characterHolder.getFirstName().equals(onlineGameHolder.getFirstPlayerCharacterHolder().getFirstName())){
+        if (characterHolder.getFirstName().equals(onlineGameHolder.getFirstPlayerCharacterHolder().getFirstName())) {
 
             CharacterHolder secondPlayerCharacterHolder = onlineGameHolder.getSecondPlayerCharacterHolder();
-            if (secondPlayerCharacterHolder != null){
+            if (secondPlayerCharacterHolder != null) {
                 secondPlayerCharacterHolder.setOnlineGame(false);
                 sendMsg.exec(secondPlayerCharacterHolder.getChatId(), "Your opponent leaved the game");
             }
-        }else{
+        } else {
             CharacterHolder firstPlayerCharacterHolder = onlineGameHolder.getFirstPlayerCharacterHolder();
 
             sendMsg.exec(firstPlayerCharacterHolder.getChatId(), "Your opponent leaved the game");
@@ -150,9 +131,5 @@ public class OnlineGameRegisterer {
         }
 
         gameHandlerMap.remove(characterHolder.getOnlineGameId());
-
-//        if (onlineGameHolderEntry.getValue().getFirstPlayerName() == firstName){
-//
-//        }
     }
 }

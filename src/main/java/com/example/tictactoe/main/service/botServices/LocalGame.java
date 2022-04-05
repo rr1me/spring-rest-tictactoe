@@ -31,7 +31,7 @@ public class LocalGame {
         this.argScan = argScan;
     }
 
-    public boolean reg(Update update){
+    public boolean reg(Update update, CharacterHolder characterHolder){
         StringBuilder builder = new StringBuilder();
 
         List<String> args = argScan.s(update);
@@ -43,7 +43,7 @@ public class LocalGame {
                     Registered
                     Now make your steps
                     """);
-            game.register(firstPlayer, secondPlayer);
+            game.register(firstPlayer, secondPlayer, characterHolder);
             sendMsg.exec(update, builder.append(game.writeBoard()));
 
             return true;
@@ -56,6 +56,8 @@ public class LocalGame {
                     To register the internet game use /onlinegame
                     
                     To connect to an existing game use /connect
+                    
+                    To change logging file format use /format
                     """));
 
             return false;

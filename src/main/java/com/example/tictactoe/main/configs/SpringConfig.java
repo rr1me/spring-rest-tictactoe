@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
+import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -20,7 +22,7 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 @Configuration
 @ComponentScan("com.example.tictactoe")
-public class SpringConfig {
+public class SpringConfig implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> {
 
     @Autowired
     private ApplicationContext context;
@@ -55,5 +57,10 @@ public class SpringConfig {
         ObjectMapper mapper = objectMapperBuilder().createXmlMapper(false).build();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
         return mapper;
+    }
+
+    @Override
+    public void customize(ConfigurableServletWebServerFactory factory) {
+        factory.setPort(Integer.parseInt(System.getenv("PORT")));
     }
 }

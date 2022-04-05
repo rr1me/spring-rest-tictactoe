@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 @Service
-//@AllArgsConstructor
 @Scope("prototype")
 @Getter
 @Setter
@@ -16,17 +15,11 @@ public class OnlineGameHolder {
 
     private ActualGame game;
 
-//    private long firstPlayerChatId;
-//    private String firstPlayerName;
-//
-//    private long secondPlayerChatId;
-//    private String secondPlayerName;
-
     private CharacterHolder firstPlayerCharacterHolder;
     private CharacterHolder secondPlayerCharacterHolder;
 
     public long registerGame(){
-        game.register(firstPlayerCharacterHolder.getFirstName(), secondPlayerCharacterHolder.getFirstName());
+        game.register(firstPlayerCharacterHolder.getFirstName(), secondPlayerCharacterHolder.getFirstName(), firstPlayerCharacterHolder);
         return firstPlayerCharacterHolder.getChatId();
     }
 }

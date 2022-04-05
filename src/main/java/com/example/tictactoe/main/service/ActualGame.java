@@ -50,8 +50,11 @@ public class ActualGame {
         return builder;
     }
 
-    public void register(String firstPname, String secondPname){
+    public void register(String firstPname, String secondPname, CharacterHolder characterHolder){
         logger.gameplayInit(firstPname, secondPname);
+
+        logger.setFormat(!characterHolder.getFileFormat().equals("xml"));
+
         boardInit();
         numStep = 1;
         player = true;

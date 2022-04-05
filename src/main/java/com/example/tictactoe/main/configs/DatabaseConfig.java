@@ -11,16 +11,16 @@ public class DatabaseConfig {
     @Bean
     public DriverManagerDataSource dataSource(){
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("org.postgresql.Driver");
+//        dataSource.setDriverClassName("org.postgresql.Driver");
+//
+//
+//        dataSource.setUrl("jdbc:postgresql://localhost:5432/tttbase");
+//        dataSource.setUsername("root");
+//        dataSource.setPassword("123");
 
-
-        dataSource.setUrl("jdbc:postgresql://localhost:5432/tttbase");
-        dataSource.setUsername("root");
-        dataSource.setPassword("123");
-
-//        dataSource.setUrl(System.getenv("JDBC_DATABASE_URL"));
-//        dataSource.setUsername(System.getenv("JDBC_DATABASE_USERNAME"));
-//        dataSource.setPassword(System.getenv("JDBC_DATABASE_PASSWORD"));
+        dataSource.setUrl(System.getenv("JDBC_DATABASE_URL"));
+        dataSource.setUsername(System.getenv("JDBC_DATABASE_USERNAME"));
+        dataSource.setPassword(System.getenv("JDBC_DATABASE_PASSWORD"));
 
 
         return dataSource;

@@ -25,6 +25,8 @@ public class CharacterHolder {
     private OnlineGameHolder onlineGameHolder;
     private int onlineGameId;
 
+    private String fileFormat = "json";
+
     public boolean checkInvolve(){ return localGame || repService || onlineGame; }
 
     public void dropCondition() {

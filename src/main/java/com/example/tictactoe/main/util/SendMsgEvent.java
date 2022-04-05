@@ -6,7 +6,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
 public class SendMsgEvent extends ApplicationEvent {
     @Getter
-    private SendMessage message;
+    private final SendMessage message;
 
     public SendMsgEvent(Object object, SendMessage message) {
         super(object);
