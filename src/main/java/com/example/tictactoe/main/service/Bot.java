@@ -18,12 +18,12 @@ public class Bot extends TelegramLongPollingBot implements ApplicationListener<S
 
     @Override
     public String getBotUsername() {
-        return "rimeTTTbot";
+        return "";
     }
 
     @Override
     public String getBotToken() {
-        return "5224652376:AAHWB8w7aGZ1_Zdxs_NJDyAOoSfjf-dUDQ8";
+        return "";
     }
 
     @Override

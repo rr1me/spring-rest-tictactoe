@@ -25,7 +25,6 @@ public class OnlineGame {
         ActualGame game = onlineGameHolder.getGame();
 
         if (!update.getMessage().getFrom().getFirstName().equals(game.getTempPlayerName())){
-
             sendMsg.exec(update, "Not your turn");
         }
         else{
@@ -34,15 +33,18 @@ public class OnlineGame {
             CharacterHolder firstPlayerCharacterHolder = onlineGameHolder.getFirstPlayerCharacterHolder();
             CharacterHolder secondPlayerCharacterHolder = onlineGameHolder.getSecondPlayerCharacterHolder();
             if (builder.toString().contains("won as") || builder.toString().contains("Draw")) {
-                onlineGameRegisterer.getGameHandlerMap().remove(characterHolder.getOnlineGameId());
+                onlineGameRegisterer.getGameHolderMap().remove(characterHolder.getOnlineGameId());
 
                 firstPlayerCharacterHolder.setOnlineGame(false);
                 secondPlayerCharacterHolder.setOnlineGame(false);
+            }else{
+                builder.append("\nTurn: "+game.getTempPlayerName());
             }
 
             if (builder.toString().contains("There's already")){
                 sendMsg.exec(characterHolder.getChatId(), builder);
             }else{
+
                 sendMsg.exec(firstPlayerCharacterHolder.getChatId(), builder);
                 sendMsg.exec(secondPlayerCharacterHolder.getChatId(), builder);
             }

@@ -6,7 +6,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 
@@ -17,6 +20,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 
 @SpringBootTest
+@AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
 class ReproductionTest {
 
     @SpyBean
@@ -25,6 +29,9 @@ class ReproductionTest {
     private final Reproduction re;
 
     private final ObjectMapper objectMapper;
+
+    @Autowired
+    private ObjectProvider<CharacterHolder> characterHolderObjectProvider;
 
     @Autowired
     public ReproductionTest(Reproduction re, ObjectMapper objectMapper) {
@@ -99,7 +106,11 @@ class ReproductionTest {
     }
 
     @Test
-    void initTest() throws XMLStreamException, IOException {
-        System.out.println(re.init("file"));
+    void initTest() {
+        re.init("file");
+
+        CharacterHolder characterHolder = characterHolderObjectProvider.getObject();
+        characterHolder.setRepService(true);
+        System.out.println(re.reproduce("3", characterHolder));
     }
 }

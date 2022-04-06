@@ -112,7 +112,7 @@ public class MessageHandler {
             else if (cmd.contains("/connect"))
                 characterHolder.setOnlineGame(onlineGame.connect(update, characterHolder));
             else if (cmd.contains("/exit"))
-                sendMsg.exec(update, "?");
+                sendMsg.exec(update, "You're not involved in smth, try /start");
             else if (cmd.contains("/format"))
                 fileHandler.changeFormat(update, characterHolder);
             else

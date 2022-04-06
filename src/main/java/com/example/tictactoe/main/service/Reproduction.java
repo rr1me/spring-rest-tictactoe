@@ -81,8 +81,6 @@ public class Reproduction {
 
         characterHolder.setRepService(false);
 
-//        repService.setReproducing(false);
-
         builder.append(boardReplay(gameplay));
         Player player;
         if (gameplay.getGameResult().getDraw() != null)
@@ -118,7 +116,6 @@ public class Reproduction {
         for (int i = 0; i < response.size(); i++) {
             builder.append((i + 1) + " | " + response.get(i)+"\n");
         }
-//        repService.setReproducing(true);
 
         builder.append("""
                 

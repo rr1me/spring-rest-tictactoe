@@ -86,12 +86,12 @@ public class ActualGame {
         logger.makeStep(numStep++, (player?1:2), actualStep);
 
         if(numStep > 5 && checkWin(tempChar)) {
-            builder.append("Player " + (player ? "1 -> "+firstPname : "2 -> "+secondPname) + " won as \""+getTempPlayer()+"\"");
+            builder.append("\nPlayer " + (player ? "1 -> "+firstPname : "2 -> "+secondPname) + " won as \""+getTempPlayer()+"\"");
             logger.makeResult((player?1:2), (player ? firstPname : secondPname), getTempPlayer());
 
             characterHolder.setLocalGame(false);
         }else if(numStep > 9){
-            builder.append("Draw, gg");
+            builder.append("\nDraw, gg");
             logger.makeDraw();
 
             characterHolder.setLocalGame(false);

@@ -33,55 +33,72 @@ public class OnlineGameRegisterer {
         this.sendMsg = sendMsg;
     }
 
-    private Map<Integer, OnlineGameHolder> gameHandlerMap = new HashMap<>();
+    private Map<Integer, OnlineGameHolder> gameHolderMap = new HashMap<>();
 
     public boolean connect(Update update, CharacterHolder characterHolder){
-        if (gameHandlerMap.values().stream()
-                .anyMatch(x->x.getFirstPlayerCharacterHolder().getChatId() == update.getMessage().getChatId()) ) {
-            sendMsg.exec(update, "Not for you");
+        List<String> args = argScan.s(update);
+
+        int gameId;
+        OnlineGameHolder onlineGameHolder;
+        try{
+            gameId = Integer.parseInt(args.get(1));
+
+            onlineGameHolder = gameHolderMap.get(gameId);
+            if (onlineGameHolder == null)
+                throw new OutOfBoundsExcp();
+
+        }catch (IndexOutOfBoundsException e){
+            return IOOBExcp(update);
+        }catch (OutOfBoundsExcp e){
+            sendMsg.exec(update, "There's no game with that id");
             return false;
-        }
-        else{
-            List<String> args = argScan.s(update);
+        }catch (NumberFormatException e){
+            if (args.get(1).equals("random")){
+                try {
+                    onlineGameHolder = gameHolderMap.values().stream().filter(x -> x.getSecondPlayerCharacterHolder() == null).findFirst().get();
 
-            try{
-                int gameId = Integer.parseInt(args.get(1));
-
-                OnlineGameHolder onlineGameHolder = gameHandlerMap.get(gameId);
-                if (onlineGameHolder == null)
-                    throw new OutOfBoundsExcp();
-
-                onlineGameHolder.setSecondPlayerCharacterHolder(characterHolder);
-
-                characterHolder.setOnlineGameHolder(onlineGameHolder);
-
-                long firstPlayerChatId = onlineGameHolder.registerGame();
-
-                gameHandlerMap.put(gameId, onlineGameHolder);
-
-                StringBuilder builder = new StringBuilder("Everyone connected. Now, let the game begin\n\n");
-                StringBuilder board = onlineGameHolder.getGame().writeBoard();
-
-                builder.append(board);
-                builder.append("\nMake your steps");
-
-                sendMsg.exec(firstPlayerChatId, builder);
-                sendMsg.exec(update, builder);
-
-                characterHolder.setOnlineGame(true);
-                characterHolder.setOnlineGameId(gameId);
-
-                return true;
-
-            }catch (IndexOutOfBoundsException e){
-                sendMsg.exec(update, "If you want to connect to random game type /connect random");
-                return false;
-                // TODO: 04.04.2022 make random connection
-            }catch (OutOfBoundsExcp e){
-                sendMsg.exec(update, "There's no game with that id");
-                return false;
+                    gameId = onlineGameHolder.getFirstPlayerCharacterHolder().getOnlineGameId();
+                }catch (NoSuchElementException ignored){
+                    sendMsg.exec(update, "There's no games to connect. Create your own game by using /onlinegame");
+                    return false;
+                };
+            }else{
+                return IOOBExcp(update);
             }
         }
+
+        onlineGameHolder.setSecondPlayerCharacterHolder(characterHolder);
+
+        characterHolder.setOnlineGameHolder(onlineGameHolder);
+
+        long firstPlayerChatId = onlineGameHolder.registerGame();
+
+        gameHolderMap.put(gameId, onlineGameHolder);
+
+        StringBuilder builder = new StringBuilder("Everyone connected. Now, let the game begin\n\n");
+
+        String firstPlayerName = onlineGameHolder.getFirstPlayerCharacterHolder().getFirstName();
+        builder.append(firstPlayerName+" vs "+characterHolder.getFirstName()+"\n\n");
+
+        builder.append(onlineGameHolder.getGame().writeBoard());
+
+        builder.append("\nTurn: "+firstPlayerName);
+
+        sendMsg.exec(update, builder);
+
+        builder.append("\n\nMake your steps");
+
+        sendMsg.exec(firstPlayerChatId, builder);
+
+        characterHolder.setOnlineGame(true);
+        characterHolder.setOnlineGameId(gameId);
+
+        return true;
+    }
+
+    private boolean IOOBExcp(Update update){
+        sendMsg.exec(update, "If you want to connect to random game type /connect random");
+        return false;
     }
 
     public boolean reg(Update update, CharacterHolder characterHolder) {
@@ -90,11 +107,11 @@ public class OnlineGameRegisterer {
         onlineGameHolder.setFirstPlayerCharacterHolder(characterHolder);
 
         try{
-            int maxKey = Collections.max(gameHandlerMap.keySet());
-            System.out.println(maxKey+ " "+gameHandlerMap.keySet());
+            int maxKey = Collections.max(gameHolderMap.keySet());
+            System.out.println(maxKey+ " "+ gameHolderMap.keySet());
             for(int i = 0; i <= maxKey+1; i++){
-                if (!gameHandlerMap.containsKey(i)){
-                    gameHandlerMap.put(i, onlineGameHolder);
+                if (!gameHolderMap.containsKey(i)){
+                    gameHolderMap.put(i, onlineGameHolder);
                     sendMsg.exec(update, "Game has been registered with id: "+ i);
 
                     characterHolder.setOnlineGameHolder(onlineGameHolder);
@@ -102,7 +119,7 @@ public class OnlineGameRegisterer {
                 }
             }
         }catch (NoSuchElementException e){
-            gameHandlerMap.put(0, onlineGameHolder);
+            gameHolderMap.put(0, onlineGameHolder);
             sendMsg.exec(update, "Game has been registered with id: 0");
 
             characterHolder.setOnlineGameHolder(onlineGameHolder);
@@ -130,6 +147,6 @@ public class OnlineGameRegisterer {
             firstPlayerCharacterHolder.setOnlineGame(false);
         }
 
-        gameHandlerMap.remove(characterHolder.getOnlineGameId());
+        gameHolderMap.remove(characterHolder.getOnlineGameId());
     }
 }

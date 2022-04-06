@@ -63,7 +63,6 @@ public class LocalGame {
             return false;
         }
 
-//        sendMsg.exec(update, builder);
     }
 
     public void step(Update update, CharacterHolder characterHolder) {
